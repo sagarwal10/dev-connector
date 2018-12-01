@@ -26,7 +26,7 @@ mongoose
 // Passport middleware
 app.use(passport.initialize());
 
-// Passport config
+// Passport config strategy - JWT
 require('./config/passport')(passport);
 
 app.use('/api/users', users);

@@ -88,7 +88,8 @@ router.post('/login', (req, res) => {
                 .then(isMatch => {
 	            if (isMatch) {
 			// User matched 
-			// Create jwt payload
+			// Create jwt payload which will be returned
+   			// to server kind of like a cookie
 			const payload = {
 			    id: user.id,
 			    name: user.name,
@@ -116,6 +117,8 @@ router.post('/login', (req, res) => {
 // @route GET api/users/current
 // @desc Return current user
 // @access Private
+// passport applied as middleware to make sure route is private -
+// i.e. user has to be logged. We are not using sessions 
 router.get('/current', passport.authenticate('jwt', { session: false }), 
 	   (req, res) => {
 	    res.json({

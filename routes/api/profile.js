@@ -27,7 +27,7 @@ router.get('/', passport.authenticate('jwt', { session: false}),
     const errors = {}; 
 
     Profile.findOne({ user: req.user.id })
-	.populate('user', ['name', 'avatar'])
+	.populate('user', ['name', 'avatar']) // otherwise only id will show up
         .then(profile => {
 	    if (!profile) {
 		errors.noprofile = 'There is no profile for this user';
@@ -234,14 +234,17 @@ router.delete('/experience/:exp_id', passport.authenticate('jwt',
            // Get remove index
            const removeIndex = profile.experience
                 .map(item => item.id) 
-                .indexOf(req.params_exp_id);
-    
-           // Splice out of array
-           profile.experience.splice(removeIndex, 1);
+                .indexOf(req.params.exp_id);
 
-           // Save
-           profile.save().then(profile => res.json(profile));
+           if (removeIndex < 0) {
+	      res.status(404).json('Experience not found');
+           } else { 
+               // Splice out of array
+               profile.experience.splice(removeIndex, 1);
 
+               // Save
+               profile.save().then(profile => res.json(profile));
+           }
 
         })
 });
@@ -257,14 +260,18 @@ router.delete('/education/:edu_id', passport.authenticate('jwt',
            // Get remove index
            const removeIndex = profile.education
                 .map(item => item.id) 
-                .indexOf(req.params_edu_id);
-    
-           // Splice out of array
-           profile.education.splice(removeIndex, 1);
+                .indexOf(req.params.edu_id);
 
-           // Save
-           profile.save().then(profile => res.json(profile));
+           if (removeIndex < 0) {
+	      res.status(404).json('Education not found');
+           } else {
+   
+              // Splice out of array
+              profile.education.splice(removeIndex, 1);
 
+              // Save
+              profile.save().then(profile => res.json(profile));
+           }
 
         })
 });
@@ -275,8 +282,12 @@ router.delete('/education/:edu_id', passport.authenticate('jwt',
 router.delete('/', passport.authenticate('jwt',
             { session:false }), (req, res) => {
     Profile.findOneAndRemove({user:req.user.id})
-       .then(()=> {
-           User.findOneAndRemove({ _id: req.user.id})
+       .then((profile)=> {
+	    if (!profile) {
+                errors.profile = 'There is no profile for this user';
+                res.status(404).json(errors);
+            }
+            User.findOneAndRemove({ _id: req.user.id})
               .then(() => res.json({success:true}));
        });
 });

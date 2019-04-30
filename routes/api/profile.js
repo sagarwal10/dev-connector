@@ -45,8 +45,10 @@ router.post('/', passport.authenticate('jwt', { session: false}),
 	   (req, res) => {
     const { errors, isValid } = validateProfileInput(req.body);
 
+    console.log('POST Profile recvd');
     // Check validation
     if (!isValid) {
+       console.log('Invalid POST Profile');
        // Return any errors
        return res.status(400).json(errors);
     } 
